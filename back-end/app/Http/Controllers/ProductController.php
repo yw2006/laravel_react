@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Exception;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -12,15 +13,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        try {
+            return response(
+            ["data"=>Product::all(),
+        "message"=>"getting products effectively "],200);
+        } catch (Exception $e) {
+          return response(["message"=>"internal error"],500);
+        }
+        
     }
 
     /**
@@ -28,38 +28,67 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'name'=>"required",
+                "price"=>"required",
+                "dectription"=>"required"
+            ]);
+            Product::create($request->all());
+            return response(
+            ["message"=>"adding product succefly "],201);
+        } catch (Exception $e) {
+          return response(["message"=>"internal error"],500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(int $id)
     {
-        //
+        try {
+            return response(
+            ["data"=>Product::findorFail($id),
+        "message"=>"getting product effectively "],200);
+        } catch (Exception $e) {
+          return response(["message"=>"internal error"],500);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+         $request->validate([
+                'name'=>"required",
+                "price"=>"required",
+                "dectription"=>"required"
+            ]);
+        try {
+            $product=Product::findorFail($id);
+            $product->update($request->all());
+            return response(
+            ["message"=>"update product effectively "],201);
+        } catch (Exception $e) {
+          return response(["message"=>"internal error"],500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        //
+        try {
+            $product=Product::findorFail($id);
+            $product->delete();
+            return response(
+            ["message"=>"deleted product succefuly "],200);
+        } catch (Exception $e) {
+          return response(["message"=>"internal error"],500);
+        }
     }
 }
